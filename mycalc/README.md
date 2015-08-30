@@ -1,10 +1,10 @@
 # shell
 
-yacc -dv mycalc.y ./src
+yacc -dv mycalc.y
 
-flex mycalc.l ./src
+flex mycalc.l
 
-gcc -o mycalc ./src/y.tab.c ./src/lex.yy.c
+gcc -o mycalc y.tab.c lex.yy.c
 
 # platform
 
