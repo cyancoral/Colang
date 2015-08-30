@@ -1,0 +1,5 @@
+src/lex.yy.c
+src/y.tab.h
+src/y.tab.c
+src/y.output
+src/mycalc.exe
