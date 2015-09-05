@@ -35,7 +35,27 @@
 %type   <elsif> elsif elsif_list
 %type   <identifier_list> identifier_list
 %%
+translation_unit
+	: definition_or_statement
+	| translation_unit definition_or_statement
+	;
+definition_or_statement
+	: function_definition
+	| statement
+	{
 
+	}
+	;
+function_definition
+	: FUNCTION IDENTIFIER LP parameter_list RP block
+	{
+
+	}
+	| FUNCTION IDENTIFIER LP RP block
+	{
+
+	}
+	;
 parameter_list
 	: IDENTIFIER
 	{
