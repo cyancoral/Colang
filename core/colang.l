@@ -1,5 +1,6 @@
 %{
 #include <stdio.h>
+#include <string.h>
 #include "colang.h"
 #include "y.tab.h"
 
@@ -15,7 +16,7 @@ increment_line_number(void)
 	cl_get_current_interpreter()->line_number++;
 }
 %}
-%start COMMENT
+%start COMMENT STRING_LITERAL_STATE
 %%
 <INITIAL>"function" 	return FUNCTION;
 <INITIAL>"if"			return IF;
@@ -70,26 +71,54 @@ increment_line_number(void)
 	return DOUBLE_LITERAL;
 }
 
+<INITIAL>\" {
+	cl_open_string_literal();
+	BEGIN SRING_LITERAL_STATE;
+}
+
 <INITIAL>[ \t] ;
 
 <INITIAL>\n {
 	increment_line_number();
 }
 
-<INITIAL># {
-	
-	BEGIN COMMENT;
-}
+<INITIAL># 	BEGIN COMMENT;
+<INITIAL>\/\/  BEGIN COMMENT;
 
-<INITIAL>\/\/ {
-
-	BEGIN COMMENT;
-}
 <INITIAL>. {
+	char buf[LINE_BUF_SIZE];
 
+	if(isprintf(yytext[0])){
+		buf[0] = yytext[0];
+		buf[1] = '\0';
+	}else{
+		sprintf(buf,"0x%02x", (unsigned char)yytext[0]);
+	}
+
+	cl_compile_error(CHARACTER_INVALID_ERR,
+					 STRING_MESSAGE_ARGUMENT,
+					 "bad_char", buf,
+					 MESSAGE_ARGUMENT_END);
 }
 <COMMENT>\n {
+	increment_line_number();
 	BEGIN INITIAL;
 }
 <COMMENT>. ;
+<SRING_LITERAL_STATE>\"  {
+	Expression *expression = cl_alloc_expression(STRING_EXPRESSION);
+	expression->u.string_value = cl_close_string_literal();
+	yylval.expression = expression;
+	BEGIN INITIAL;
+	return STRING_LITERAL;
+}
+<STRING_LITERAL_STATE>\n  {
+	cl_add_string_literal('\n');
+	increment_line_number();
+}
+<STRING_LITERAL_STATE>\\\" cl_add_string_literal('"');
+<STRING_LITERAL_STATE>\\n  cl_add_string_literal('\n');
+<STRING_LITERAL_STATE>\\t  cl_add_string_literal('\t');
+<STRING_LITERAL_STATE>\\\\ cl_add_string_literal('\\');
+<STRING_LITERAL_STATE>.    cl_add_string_literal(yytext[0]);
 %%
