@@ -44,169 +44,186 @@ definition_or_statement
 	: function_definition
 	| statement
 	{
-		// 声明
+		// 语句
+		CL_Interpreter *inter = 
+					cl_get_current_interpreter();
 
+		inter->statement_list
+			= cl_chain_statement_list(inter->
+			statement_list,$1);
 	}
 	;
 function_definition
 	: FUNCTION IDENTIFIER LP parameter_list RP block
 	{
 		// 有参数函数定义
-
+		cl_function_define($2,$4,$6);
 	}
 	| FUNCTION IDENTIFIER LP RP block
 	{
 		// 无参数函数定义
-
+		cl_function_define($2,NULL,$5);
 	}
 	;
 parameter_list
 	: IDENTIFIER
 	{
 		// 单个参数
-
+		$$ = cl_create_parameter($1);
 	}
 	| parameter_list COMMA IDENTIFIER
 	{
 		// 多个参数
-
+		$$ = cl_create_parameter($1,$3);
 	}
 	;
 argument_list
 	: expression
 	{
-
+		$$ = cl_create_argument_list($1);
 	}
 	| argument_list COMMA expression
 	{
-
+		$$ = cl_create_argument_list($1,$3);
 	}
 	;
 statement_list
 	: statement
 	{
-
+		$$ = cl_create_statement_list($1);
 	}
 	| statement_list statement
 	{
-
+		$$ = cl_chain_statement_list($1,$2);
 	}
 	;
 expression
 	: logical_or_expression
 	| IDENTIFIER ASSIGN expression
 	{
-
+		$$ = cl_create_assign_expression($1,$3);
 	}
 	;
 logical_or_expression
 	: logical_and_expression
 	| logical_or_expression LOGICAL_OR logical_and_expression
 	{
-
+		$$ = cl_create_binary_expression(
+		LOGICAL_OR_EXPRESSION,$1,$3);
 	}
 	;
 logical_and_expression
 	: equality_expression
 	| logical_and_expression LOGICAL_AND equality_expression
 	{
-
+		$$ = cl_create_binary_expression(
+		LOGICAL_AND_EXPRESSION,$1,$3);
 	}
 	;
 equality_expression
 	: relational_expression
 	| equality_expression EQ relational_expression
 	{
-
+		$$ = cl_create_binary_expression(
+		EQ_EXPRESSION,$1,$3);
 	}
 	| equality_expression NE relational_expression
 	{
-
+		$$ = cl_create_binary_expression(
+		NE_EXPRESSION,$1,$3);
 	}
 	;
 relational_expression
 	: additive_expression
 	| relational_expression GT additive_expression
 	{
-
+		$$ = cl_create_binary_expression(
+		GT_EXPRESSION,$1,$3);
 	}
 	| relational_expression GE additive_expression
 	{
-
+		$$ = cl_create_binary_expression(
+		GE_EXPRESSION,$1,$3);
 	}
 	| relational_expression LE additive_expression{
-
+		$$ = cl_create_binary_expression(
+		LE_EXPRESSION,$1,$3);
 	}
 	;
 additive_expression
 	: multiplicative_expression
 	| additive_expression ADD multiplicative_expression
 	{
-
+		$$ = cl_create_binary_expression(
+		ADD_EXPRESSION,$1,$3);
 	}
 	| additive_expression SUB multiplicative_expression
 	{
-
+		$$ = cl_create_binary_expression(
+		SUB_EXPRESSION,$1,$3);
 	}
 	;
 multiplicative_expression
 	: unary_expression
 	| multiplicative_expression MUL unary_expression
 	{
-
+		$$ = cl_create_binary_expression(
+		MUL_EXPRESSION,$1,$3);
 	}
 	| multiplicative_expression DIV unary_expression
 	{
-
+		$$ = cl_create_binary_expression(
+		DIV_EXPRESSION,$1,$3);
 	}
 	| multiplicative_expression MOD unary_expression
 	{
-
+		$$ = cl_create_binary_expression(
+		MOD_EXPRESSION,$1,$3);
 	}
 	;
 unary_expression
 	: primary_expression
 	| SUB unary_expression
 	{
-
+		$$ = cl_create_minus_expression($2);
 	}
 	;
 primary_expression
 	: IDENTIFIER LP argument_list RP
 	{
-
+		$$ = cl_create_function_call_expression($1,$3);
 	}
 	| IDENTIFIER LP RP
 	{
-
+		$$ = cl_create_function_call_expression($1,NULL);
 	}
 	| LP expression RP
 	{
-
+		$$ = $2;
 	}
 	| IDENTIFIER
 	{
-
+		$$ = cl_create_identifier_expression($1);
 	}
 	| INT_LITERAL
 	| DOUBLE_LITERAL
 	| TRUE_T
 	{
-
+		$$ = cl_create_boolean_expression(CL_TRUE);
 	}
 	| FALSE_T
 	{
-
+		$$ = cl_create_boolean_expression(CL_FALSE);
 	}
 	| NULL_T
 	{
-
+		$$ = cl_create_null_expression();
 	}
 	;
 statement
 	: expression SEMICOLON // 分号
 	{
-
+		$$ = cl_create_expression_statement($1);
 	}
 	| global_statement
 	| if_statement
@@ -219,94 +236,90 @@ statement
 global_statement
 	: GLOBAL_T identifier_list SEMICOLON
 	{
-
+		$$ = cl_create_global_statement($2);
 	}
 	;
 identifier_list
 	: IDENTIFIER
 	{
-
+		$$ = cl_create_global_identifier($1);
 	}
 	| identifier_list COMMA IDENTIFIER
 	{
-
+		$$ = cl_chain_indentifier($1,$3);
 	}
 	;
 if_statement
 	: IF LP expression RP block
 	{
-
+		$$ = cl_create_if_statement($3,$5,NULL,NULL);
 	}
-	| IF LP expression RP block
-	{
-
-	} 
 	| IF LP expression RP block elsif_list
 	{
-
+		$$ = cl_create_if_statement($3,$5,$6,NULL);
 	}
 	| IF LP expression RP block elsif_list ELSE block
 	{
-
+		$$ = cl_create_if_statement($3,$5,$6,$8);
 	}
 	;
 elsif_list
 	: elsif_list elsif
 	{
-
+		$$ = cl_chain_elsif_list($1,$2);
 	}
 	;
 elsif
 	: ELSIF LP expression RP block
 	{
-
+		$$ = cl_create_elsif($3,$5);
 	}
 	;
 while_statement
 	: WHILE LP expression RP block
 	{
-
+		$$ = cl_create_while_statement($3,$5);
 	}
 	;
 for_statement
 	: FOR LP expression_opt SEMICOLON expression_opt SEMICOLON expression_opt RP block
 	{
-
+		$$ = cl_create_for_statement($3,$5,$7,$9);
 	}
 	;
 expression_opt
 	: // empty
 	{
-
+		$$ = NULL;
 	}
 	| expression
 	;
 return_statement
 	: RETURN_T expression_opt SEMICOLON
 	{
-
+		$$ = cl_create_return_statement($2);
 	}
 	;
 break_statement
 	: BREAK SEMICOLON
 	{
-
+		$$ = cl_create_break_statement($2);
 	}
 	;
 continue_statement
 	: CONTINUE SEMICOLON
 	{
-
+		$$ = cl_create_continue_statement();
 	}
 	;
 block
 	: LC statement_list RC 
 	{
-
+		$$ = cl_create_block($2);
 	}
 	| LC RC
 	{
-
+		$$ = cl_create_block(NULL);
 	}
 	;
 %%
