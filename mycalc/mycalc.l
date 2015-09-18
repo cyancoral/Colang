@@ -11,6 +11,8 @@ yywrap(void)
 %%
 "+"		return ADD;
 "-"		return SUB;
+"("		return LP;
+")"		return RP;
 "*"		return MUL;
 "/"		return DIV;
 "\n"	return CR;
@@ -19,6 +21,9 @@ yywrap(void)
 	sscanf(yytext, "%lf", &temp);
 	yylval.double_value = temp;
 	return DOUBLE_LITERAL;
+}
+([a-zA-Z]*) {
+	return CR;
 }
 [ \t] ;
 . {

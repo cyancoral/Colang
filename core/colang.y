@@ -323,21 +323,3 @@ block
 	}
 	;
 %%
-int
-yyerror(char const *str)
-{
-	extern char *yytext;
-	fprintf(stderr,"parser error near %s\n", yytext);
-}
-
-int main(void)
-{
-	extern int yyparse(void);
-	extern FILE *yyin;
-
-	yyin = stdin;
-	if(yyparse()){
-		fprintf(stderr,"Error!\n");
-		exit(1);
-	}	
-}
