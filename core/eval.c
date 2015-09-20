@@ -1,3 +1,9 @@
+#include <math.h>
+#include <string.h>
+#include "MEM.h"
+#include "debug.h"
+#include "colang_core.h"
+
 CL_Value cl_eval_binary_expression(CL_Interpreter *inter,LocalEnvironment *env,ExpressionType operator,
 								   Expression *left,Expression *right)
 {
