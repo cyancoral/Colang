@@ -1,3 +1,6 @@
+#ifndef PUBLIC_CL_H_INCLUDED
+#define PUBLIC_CL_H_INCLUDED
+
 #include <stdio.h>
 
 typedef struct CL_Interpreter_tag CL_Interpreter;
@@ -7,3 +10,4 @@ void CL_compile(CL_Interpreter *interpreter, FILE *fp);
 void CL_interpret(CL_Interpreter *interpreter);
 void CL_dispose_interpreter(CL_Interpreter *interpreter);
 
+#endif /* PUBLIC_CL_H_INCLUDED */

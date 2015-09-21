@@ -43,3 +43,5 @@ void CL_add_native_function(CL_Interpreter *interpreter,
 							char *name, CL_NativeFunctionProc *proc);
 void CL_add_global_variable(CL_Interpreter *inter,
 							char *identifier,CL_Value *value);
+
+#endif /* PUBLIC_COLANG_DEVELOPER_H_INCLUDED */
