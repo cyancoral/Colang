@@ -65,3 +65,9 @@ elsif_list
 
 identifier_list
 
+translation_unit
+	
+	一个.cpp文件（在将其包含的h文件展开后）就形成一个编译单元
+	因为编译器是将.cpp文件逐个编译
+	得到一个个.obj文件（或.o等，具体随编译器而异）
+	然后将obj链接，生成可执行文件。
