@@ -8,6 +8,12 @@ gcc -o mycalc y.tab.c lex.yy.c
 
 # platform
 
-windows + gitshell + gcc
+*windows
 
-it's surprise that git-shell has `yacc` and `flex`.
+download gitshell + gcc
+
+git-shell has `yacc` and `flex`.
+
+*linux
+
+use the same commands.
